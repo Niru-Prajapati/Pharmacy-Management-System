@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Customer Signup</title>
+    <link rel="stylesheet" href="signup.css" />
+  </head>
+  <body>
+    <div class="signup-box">
+      <h2>Customer Signup</h2>
+
+      <form action="signup.php" method="POST">
+        <input type="text" id="name" name="name" placeholder="Full Name" />
+        <input
+          type="email"
+          id="email"
+          name="email"
+          placeholder="Email Address"
+        />
+        <input type="text" id="phone" name="phone" placeholder="Phone Number" />
+        <input
+          type="password"
+          id="password"
+          name="password"
+          placeholder="Password"
+        />
+        <input
+          type="password"
+          id="confirmPassword"
+          name="confirmPassword"
+          placeholder="Confirm Password"
+        />
+        <button type="submit">Signup</button>
+      </form>
+
+      <div class="login-link">
+        Already have an account? <a href="customer_login.php">Login</a>
+      </div>
+    </div>
+
+    <script>
+      function validateSignup() {
+        const name = document.getElementById("name").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const phone = document.getElementById("phone").value.trim();
+        const pass = document.getElementById("password").value.trim();
+        const cpass = document.getElementById("confirmPassword").value.trim();
+
+        if (
+          name === "" ||
+          email === "" ||
+          phone === "" ||
+          pass === "" ||
+          cpass === ""
+        ) {
+          alert("Please fill all fields.");
+          return false;
+        }
+
+        if (pass !== cpass) {
+          alert("Passwords do not match.");
+          return false;
+        }
+
+        alert("Signup successful!");
+        return true;
+      }
+    </script>
+  </body>
+</html>

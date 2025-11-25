@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pharmacy Management System</title>
+    <link rel="stylesheet" href="index.css" />
+    
+  </head>
+
+  <body>
+    <!-- NAVBAR -->
+    <nav>
+      <div class="logo">PharmacyMS</div>
+      <ul id="menuList">
+        <li><a href="#">Home</a></li>
+        <li><a href="#about">About Us</a></li>
+        <li><a href="#services">Services</a></li>
+        <li><a href="#contact">Contact</a></li>
+        <li><a href="customer_signup.html">Signup</a></li>
+      </ul>
+      <span class="menu-icon" onclick="toggleMenu()">☰</span>
+    </nav>
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hero-text">
+        <h1>Welcome to Pharmacy Management System</h1>
+        <p>Efficient • Fast • Reliable medicine management</p>
+      </div>
+    </div>
+
+    <!-- ABOUT SECTION -->
+    <section id="about">
+      <h2>About Us</h2>
+      <p>
+        Our Pharmacy Management System helps pharmacies manage medicines,
+        customers, suppliers, billing, and stock efficiently. We aim to provide
+        a fast and digital experience for better healthcare service.
+      </p>
+    </section>
+
+    <!-- SERVICES SECTION -->
+    <section id="services">
+      <h2>Our Services</h2>
+      <ul>
+        <li>✔ Medicine Stock Management</li>
+        <li>✔ Customer Billing System</li>
+        <li>✔ Expiry Tracking</li>
+        <li>✔ Supplier Records</li>
+        <li>✔ Secure Database</li>
+      </ul>
+    </section>
+
+    <!-- CONTACT SECTION -->
+    <section id="contact">
+      <h2>Contact Us</h2>
+      <p>Email: pharmacy@gmail.com</p>
+      <p>Phone: +977-98XXXXXXX</p>
+      <p>Location: Kathmandu, Nepal</p>
+    </section>
+
+    <!-- JAVASCRIPT -->
+    <script>
+      function toggleMenu() {
+        const menu = document.getElementById("menuList");
+        menu.classList.toggle("open");
+      }
+    </script>
+  </body>
+</html>

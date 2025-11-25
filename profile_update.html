@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Profile</title>
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <h2>Update Profile</h2>
+    <ul>
+        <li><a href="customer_dashboard.html">Back</a></li>
+    </ul>
+</nav>
+
+<section class="form-box">
+    <h3>Edit Your Information</h3>
+
+    <form action="update_profile.php" method="POST">
+        <input type="text" name="name" placeholder="Full Name">
+        <input type="email" name="email" placeholder="Email Address">
+        <input type="text" name="phone" placeholder="Phone Number">
+        <input type="password" name="password" placeholder="New Password (optional)">
+        
+        <button type="submit">Update</button>
+    </form>
+</section>
+
+</body>
+</html>
