@@ -97,9 +97,11 @@ Medicines
 					<p>
 						<label for="cat">Category:</label><br>
 						<select id="cat" name="cat">
-								<option>Tablet</option>
-								<option>Capsule</option>
-								<option>Syrup</option>
+								<option>Cold & Flu</option>
+								<option>Pain Relief</option>
+								<option>Vitamins</option>
+								<option>Allergy</option>
+								<option>AntiBiotics</option>
 						</select>
 					</p>
 					

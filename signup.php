@@ -20,7 +20,7 @@ $query = "INSERT INTO customersignup (name, email, phone, password)
           VALUES ('$name', '$email', '$phone', '$hashedPassword')";
 
 if(mysqli_query($conn, $query)){
-    echo "<script>alert('Signup successful! Please login now.'); window.location='customer_login.html';</script>";
+    echo "<script>alert('Signup successful! Please login now.'); window.location='customer_login.php';</script>";
 } else {
     echo "<script>alert('Error: Email might already exist'); window.history.back();</script>";
 }

@@ -76,7 +76,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
       </form>
 
       <div class="signup-link">
-        Don't have an account? <a href="customer_signup.php">Signup</a>
+        Don't have an account? <a href="customer_signup.html">Signup</a>
       </div>
     </div>
   </body>
