@@ -3,58 +3,65 @@ session_start();
 include 'connection.php';
 include 'validate_prescription.php';
 
-// No cart table
-$current_cart = [];
-
-// Get search term and category from AJAX POST
+// Get search and category filters
 $search = $_POST['search'] ?? '';
 $category = $_POST['category'] ?? '';
 
-// Build SQL query with search and optional category filter
-$sql = "SELECT * FROM meds WHERE MED_NAME LIKE ?";
-$params = ["%$search%"];
-$types = "s";
+// Use session cart
+$current_cart = $_SESSION['cart'] ?? [];
 
-// Only add category filter if selected
-if(!empty($category)){
-    $sql .= " AND CATEGORY = ?";
-    $params[] = $category;
-    $types .= "s";
+// Base SQL query
+$sql = "SELECT * FROM meds WHERE 1";
+
+// Fuzzy search (supports misspelled medicine names)
+if (!empty($search)) {
+    $searchEscaped = mysqli_real_escape_string($conn, $search);
+    $sql .= " AND (
+        MED_NAME LIKE '%$searchEscaped%'
+        OR SOUNDEX(MED_NAME) = SOUNDEX('$searchEscaped')
+    )";
 }
 
-// Limit results
-$sql .= " LIMIT 50";
+// Category filter
+if (!empty($category)) {
+    $categoryEscaped = mysqli_real_escape_string($conn, $category);
+    $sql .= " AND CATEGORY = '$categoryEscaped'";
+}
 
-$stmt = $conn->prepare($sql);
-$stmt->bind_param($types, ...$params);
-$stmt->execute();
-$result = $stmt->get_result();
+// Execute query
+$result = mysqli_query($conn, $sql);
 
-// Loop through medicines and output table rows
-while($med = $result->fetch_assoc()){
+// Generate table rows
+while ($med = mysqli_fetch_assoc($result)) {
+
     $med_id = $med['MED_ID'];
     $med_name = $med['MED_NAME'];
     $med_qty = $med['MED_QTY'];
     $med_category = $med['CATEGORY'];
     $med_price = $med['MED_PRICE'];
 
-    // Validate medicine (dosage limits, stock, etc.)
+    // Validate prescription (including drug interactions)
     $errors = validatePrescription($med_id, 1, $current_cart);
-
-    echo "<tr>";
-    echo "<td>".htmlspecialchars($med_name)."</td>";
-    echo "<td>".htmlspecialchars($med_category)."</td>";
-    echo "<td>Rs. ".htmlspecialchars($med_price)."</td>";
-    echo "<td>".htmlspecialchars($med_qty)."</td>";
-    echo "<td>";
-    if(!empty($errors)){
-        echo "<span class='disabled' title='".implode(", ", $errors)."'>⚠️ Cannot Add</span>";
-    } else if($med_qty > 0){
-        echo "<a href='add_to_cart.php?med_id=$med_id'>✅ Add to Cart</a>";
-    } else {
-        echo "<span style='color:red;'>❌ Out of stock</span>";
-    }
-    echo "</td>";
-    echo "</tr>";
-}
 ?>
+<tr>
+    <td><?= htmlspecialchars($med_name); ?></td>
+    <td><?= htmlspecialchars($med_category); ?></td>
+    <td>Rs. <?= htmlspecialchars($med_price); ?></td>
+    <td><?= htmlspecialchars($med_qty); ?></td>
+    <td>
+        <?php
+        if (!empty($errors)) {
+            // Show popup alert on click for conflicting medicines
+            $error_msg = implode(", ", $errors);
+            echo "<a href='#' onclick='alert(\"$error_msg\"); return false;' class='disabled'>⚠️ Cannot Add</a>";
+        } elseif ($med_qty > 0) {
+            // Add to Cart link
+            echo "<a href='add_to_cart.php?med_id=$med_id'>✅ Add to Cart</a>";
+        } else {
+            // Out of stock
+            echo "<span style='color:red;'>❌ Out of stock</span>";
+        }
+        ?>
+    </td>
+</tr>
+<?php } ?>

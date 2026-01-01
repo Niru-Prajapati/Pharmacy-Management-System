@@ -1,13 +1,24 @@
+
 <?php
 session_start();
-include 'connection.php';
-include 'validate_prescription.php'; // <-- include validation
 
-// Check login
+include 'connection.php';
+include 'validate_prescription.php';
+
+// Check login FIRST
 if (!isset($_SESSION['customer_id'])) {
     header("Location: customer_login.php");
     exit();
 }
+
+// Cart count
+if (!isset($_SESSION['cart'])) {
+    $_SESSION['cart'] = [];
+}
+
+// Calculate cart count
+$cart_count = array_sum($_SESSION['cart']);
+
 
 $customer_id = $_SESSION['customer_id'];
 
@@ -75,6 +86,12 @@ if(isset($_SESSION['cart_error'])){
     <a href="#profile">👤 Profile</a>
     <a href="#medicines">💊 Medicines</a>
     <a href="#orders">🛒 Orders</a>
+   <a href="cart.php">
+    🛒 View Cart 
+    <?php if($cart_count > 0): ?>
+        <span style="color:red;">(<?= $cart_count ?>)</span>
+    <?php endif; ?>
+</a>
     <a href="profile_update.php">✏️ Update Profile</a>
     <a href="cus_logout.php">🚪 Logout</a>
 </div>

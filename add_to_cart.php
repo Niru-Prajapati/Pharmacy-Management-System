@@ -1,53 +1,35 @@
 <?php
 session_start();
 include 'connection.php';
-include 'validate_prescription.php';
 
-if(!isset($_SESSION['customer_id'])) {
+// Check login
+if (!isset($_SESSION['customer_id'])) {
     header("Location: customer_login.php");
     exit();
 }
 
-$customer_id = $_SESSION['customer_id'];
-$med_id = $_GET['med_id'] ?? 0;
-$quantity = $_POST['quantity'] ?? 1;
-
-// Validate med_id
-if(!$med_id || $med_id <= 0){
-    $_SESSION['cart_error'] = "Invalid medicine ID.";
-    header("Location: customer_dashboard.php");
+$med_id = intval($_GET['med_id'] ?? 0);
+if ($med_id <= 0) {
+    $_SESSION['cart_error'] = "Invalid medicine!";
+    header("Location: customer_dashboard.php#medicines");
     exit();
 }
 
-// Fetch current cart items for validation
-$cart_result = mysqli_query($conn, "
-    SELECT m.MED_NAME, c.quantity 
-    FROM cart c 
-    JOIN meds m ON c.med_id = m.MED_ID 
-    WHERE c.customer_id = $customer_id
-");
-$current_cart = mysqli_fetch_all($cart_result, MYSQLI_ASSOC);
-
-// Prescription validation
-$errors = validatePrescription($med_id, $quantity, $current_cart);
-
-if(!empty($errors)){
-    $_SESSION['cart_error'] = implode(", ", $errors);
-    header("Location: customer_dashboard.php");
-    exit();
+// Initialize cart if it doesn't exist
+if (!isset($_SESSION['cart'])) {
+    $_SESSION['cart'] = [];
 }
 
-// Add to cart with duplicate handling
-$stmt = $conn->prepare("
-    INSERT INTO cart (customer_id, med_id, quantity) 
-    VALUES (?, ?, ?)
-    ON DUPLICATE KEY UPDATE quantity = quantity + VALUES(quantity)
-");
-$stmt->bind_param("iii", $customer_id, $med_id, $quantity);
-$stmt->execute();
+// Add medicine to cart
+if (isset($_SESSION['cart'][$med_id])) {
+    $_SESSION['cart'][$med_id] += 1;
+} else {
+    $_SESSION['cart'][$med_id] = 1;
+}
 
-// Set success message
-$_SESSION['cart_success'] = "✅ Medicine added to cart!";
-header("Location: customer_dashboard.php");
+// Success message
+$_SESSION['cart_success'] = "Medicine added to cart!";
+
+// Redirect back to dashboard
+header("Location: customer_dashboard.php#medicines");
 exit();
-?>
