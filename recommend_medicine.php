@@ -16,11 +16,19 @@ $sql = "SELECT * FROM meds WHERE 1";
 // Fuzzy search (supports misspelled medicine names)
 if (!empty($search)) {
     $searchEscaped = mysqli_real_escape_string($conn, $search);
-    $sql .= " AND (
-        MED_NAME LIKE '%$searchEscaped%'
-        OR SOUNDEX(MED_NAME) = SOUNDEX('$searchEscaped')
-    )";
+
+    if (strlen($searchEscaped) < 4) {
+        // While typing → partial match
+        $sql .= " AND MED_NAME LIKE '%$searchEscaped%'";
+    } else {
+        // Full word → fuzzy match
+        $sql .= " AND (
+            MED_NAME LIKE '%$searchEscaped%'
+            OR SOUNDEX(MED_NAME) = SOUNDEX('$searchEscaped')
+        )";
+    }
 }
+
 
 // Category filter
 if (!empty($category)) {
@@ -50,11 +58,19 @@ while ($med = mysqli_fetch_assoc($result)) {
     <td><?= htmlspecialchars($med_qty); ?></td>
     <td>
         <?php
-        if (!empty($errors)) {
-            // Show popup alert on click for conflicting medicines
-            $error_msg = implode(", ", $errors);
-            echo "<a href='#' onclick='alert(\"$error_msg\"); return false;' class='disabled'>⚠️ Cannot Add</a>";
-        } elseif ($med_qty > 0) {
+       if (!empty($errors)) {
+
+    // Build readable error message
+    $error_msg  = "This medicine cannot be added to your cart because:\n\n";
+    $error_msg .= "- " . implode("\n- ", $errors);
+
+    // Safely encode for JavaScript
+    $js_error = json_encode($error_msg);
+
+    echo "<a href='#' onclick='alert($js_error); return false;' class='disabled'>⚠️ Cannot Add</a>";
+}
+
+        elseif ($med_qty > 0) {
             // Add to Cart link
             echo "<a href='add_to_cart.php?med_id=$med_id'>✅ Add to Cart</a>";
         } else {

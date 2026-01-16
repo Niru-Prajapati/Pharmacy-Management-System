@@ -2,34 +2,39 @@
 session_start();
 include 'connection.php';
 
-// Check login
+// 🔐 Check login
 if (!isset($_SESSION['customer_id'])) {
     header("Location: customer_login.php");
     exit();
 }
 
-$med_id = intval($_GET['med_id'] ?? 0);
-if ($med_id <= 0) {
+// 🧾 Validate medicine ID
+$med_id = filter_input(INPUT_GET, 'med_id', FILTER_VALIDATE_INT);
+
+if (!$med_id || $med_id <= 0) {
     $_SESSION['cart_error'] = "Invalid medicine!";
     header("Location: customer_dashboard.php#medicines");
     exit();
 }
 
-// Initialize cart if it doesn't exist
-if (!isset($_SESSION['cart'])) {
+// 🛒 Initialize cart (PERSISTENT)
+if (!isset($_SESSION['cart']) || !is_array($_SESSION['cart'])) {
     $_SESSION['cart'] = [];
 }
 
-// Add medicine to cart
-if (isset($_SESSION['cart'][$med_id])) {
-    $_SESSION['cart'][$med_id] += 1;
+// 🧮 Increase quantity safely
+if (array_key_exists($med_id, $_SESSION['cart'])) {
+    $_SESSION['cart'][$med_id]++;
 } else {
     $_SESSION['cart'][$med_id] = 1;
 }
 
-// Success message
-$_SESSION['cart_success'] = "Medicine added to cart!";
+// ✅ Store last added medicine (useful for UI highlight)
+$_SESSION['last_added_med'] = $med_id;
 
-// Redirect back to dashboard
+// 🎉 Success message
+$_SESSION['cart_success'] = "Medicine added to cart successfully!";
+
+// 🔁 Redirect back
 header("Location: customer_dashboard.php#medicines");
 exit();
