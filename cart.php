@@ -1,5 +1,14 @@
 <?php
 session_start();
+$showToast = false;
+$toastMessage = "";
+
+if (isset($_SESSION['cart_success'])) {
+    $showToast = true;
+    $toastMessage = $_SESSION['cart_success'];
+    unset($_SESSION['cart_success']);
+}
+
 include 'connection.php';
 
 // Check login
@@ -8,14 +17,29 @@ if (!isset($_SESSION['customer_id'])) {
     exit();
 }
 
+// Show success message (from add_to_cart.php)
+if (isset($_SESSION['cart_success'])) {
+    echo "<script>
+        alert('" . addslashes($_SESSION['cart_success']) . "');
+    </script>";
+    unset($_SESSION['cart_success']);
+}
+
+// Show error message
+if (isset($_SESSION['cart_error'])) {
+    echo "<script>
+        alert('" . addslashes($_SESSION['cart_error']) . "');
+    </script>";
+    unset($_SESSION['cart_error']);
+}
+
 // If cart is empty
 if (empty($_SESSION['cart'])) {
-    echo "<script>
-        alert('Your cart is empty!');
-        window.location.href='customer_dashboard.php#medicines';
-    </script>";
+    $_SESSION['toast_error'] = "Your cart is empty";
+    header("Location: customer_dashboard.php#medicines");
     exit();
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -24,7 +48,7 @@ if (empty($_SESSION['cart'])) {
     <title>My Cart</title>
     <style>
         table {
-            width: 100%;
+             width: 100%;
             border-collapse: collapse;
         }
         th, td {
@@ -35,19 +59,70 @@ if (empty($_SESSION['cart'])) {
         a {
             text-decoration: none;
             padding: 4px 8px;
-            font-size: 18px;
+            font-size: 18px;  
+        }
+        .shop{
+            margin-left:20px;
+            font-size:18px;
+             border: 2px solid #333;
+             border-radius: 6px;
+            background-color: #f1b9dc;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: background-color 0.3s ease;
+        }
+        .shop:hover{
+             background-color: #f05bf5;
+        }
+        h2{
+           margin-left:20px;
+           margin-bottom:30px;
         }
         button {
             padding: 10px 18px;
-            font-size: 16px;
+            font-size: 15px;
+            cursor: pointer;
+            display:block;
+            margin:20px auto;
+            margin-top:40px;
+            margin-bottom:-30px;
+            background-color:#f1b9dc;
+            border-radius:6px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover{
+            background-color: #f05bf5;
+
         }
         .total {
             font-weight: bold;
         }
+        .toast {
+    position: fixed;
+    top: 20px;
+    right: -350px;
+    background: #323232;
+    color: #fff;
+    padding: 14px 22px;
+    border-radius: 6px;
+    font-size: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    transition: right 0.5s ease;
+    z-index: 9999;
+}
+
+.toast.show {
+    right: 20px;
+}
+
     </style>
 </head>
 
 <body>
+    <!-- Toast Notification -->
+<div id="toast" class="toast">
+    🛒 <?= htmlspecialchars($toastMessage); ?>
+</div>
+
 
 <h2>🛒 My Cart</h2>
 
@@ -81,7 +156,7 @@ foreach ($_SESSION['cart'] as $med_id => $qty) {
         <td><?= htmlspecialchars($med['MED_NAME']); ?></td>
         <td>Rs. <?= $med['MED_PRICE']; ?></td>
 
-        <!-- ✅ Quantity Increase / Decrease -->
+        <!-- Quantity Increase / Decrease -->
         <td>
             <a href="update_cart.php?med_id=<?= $med_id ?>&action=decrease">➖</a>
             <?= $qty ?>
@@ -91,9 +166,13 @@ foreach ($_SESSION['cart'] as $med_id => $qty) {
         <td>Rs. <?= $subtotal; ?></td>
 
         <td>
-            <a href="remove_from_cart.php?med_id=<?= $med_id ?>">❌ Remove</a>
+            <a href="remove_from_cart.php?med_id=<?= $med_id ?>" 
+               onclick="return confirm('Remove this item from cart?');">
+               ❌ Remove
+            </a>
         </td>
     </tr>
+
 <?php } ?>
 
     <tr>
@@ -105,13 +184,25 @@ foreach ($_SESSION['cart'] as $med_id => $qty) {
 
 <br>
 
-<!-- ✅ Place Order Button -->
-<form action="place_order.php" method="post">
+<!-- Place Order Button -->
+<form action="payment.php" method="post">
     <button type="submit">🧾 Place Order</button>
 </form>
 
-<br>
-<a href="customer_dashboard.php#medicines">⬅ Continue Shopping</a>
+<br><br>
+<a href="customer_dashboard.php#medicines" class="shop">⬅ Continue Shopping</a>
+<script>
+<?php if ($showToast): ?>
+    const toast = document.getElementById("toast");
+    toast.classList.add("show");
+
+    setTimeout(() => {
+        toast.classList.remove("show");
+    }, 2500);
+<?php endif; ?>
+</script>
+
+
 
 </body>
 </html>

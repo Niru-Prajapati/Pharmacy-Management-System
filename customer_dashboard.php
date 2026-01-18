@@ -78,12 +78,34 @@ small { font-size:0.8em; }
     color: gray;
     cursor: pointer;
 }
+.toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #323232;
+    color: #fff;
+    padding: 14px 24px;
+    border-radius: 30px;
+    font-size: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease, bottom 0.3s ease;
+    z-index: 9999;
+}
+
+.toast.show {
+    opacity: 1;
+    bottom: 50px;
+}
 
 
 </style>
 </head>
 
 <body>
+    <div id="toast" class="toast"></div>
+
 
 <?php
 if(isset($_SESSION['cart_success'])){
@@ -95,13 +117,15 @@ if(isset($_SESSION['cart_error'])){
     unset($_SESSION['cart_error']);
 }
 ?>
+    <div id="toast" class="toast"></div>
+
 
 <!-- SIDEBAR -->
 <div class="sidebar">
     <h2>Customer Panel</h2>
     <a href="#profile">👤 Profile</a>
     <a href="#medicines">💊 Medicines</a>
-    <a href="#orders">🛒 Orders</a>
+    <a href="order_history.php">🛒 Orders</a>
     <a href="cart.php">🛒 View Cart
         <?php if($cart_count > 0): ?>
             <span style="color:red;">(<?= $cart_count ?>)</span>
@@ -163,9 +187,17 @@ while($med = mysqli_fetch_assoc($medicines_result)){
     <td><?= htmlspecialchars($med['MED_QTY']); ?></td>
     <td>
         <?php
-        if(!empty($errors)){
-            echo "<span class='disabled' title='".implode(", ", $errors)."'>⚠️ Cannot Add</span>";
-        } elseif($med['MED_QTY'] > 0){
+    if (!empty($errors)) {
+    foreach ($errors as $key => $value) {
+        $errors[$key] = preg_replace('/https?:\/\/\S+/', 'Pharmacy MS', $value);
+    }
+
+    $error_text = implode(", ", $errors);
+    echo "<span class='disabled' title='{$error_text}'>⚠️ Cannot Add</span>";
+}
+
+
+        elseif($med['MED_QTY'] > 0){
             echo "<a href='add_to_cart.php?med_id=".$med['MED_ID']."'>✅ Add to Cart</a>";
         } else {
             echo "<span style='color:red;'>❌ Out of stock</span>";
@@ -178,34 +210,8 @@ while($med = mysqli_fetch_assoc($medicines_result)){
 </table>
 </div>
 
-<!-- ORDERS -->
-<div class="card" id="orders">
-<h3>🛒 My Orders</h3>
 
-<?php if($orders_result->num_rows > 0){ ?>
-<table>
-<tr>
-    <th>Order ID</th>
-    <th>Medicine</th>
-    <th>Qty</th>
-    <th>Total</th>
-    <th>Date</th>
-</tr>
 
-<?php while($o = $orders_result->fetch_assoc()){ ?>
-<tr>
-    <td><?= $o['order_id']; ?></td>
-    <td><?= htmlspecialchars($o['med_name']); ?></td>
-    <td><?= $o['quantity']; ?></td>
-    <td>Rs. <?= $o['total_price']; ?></td>
-    <td><?= $o['order_date']; ?></td>
-</tr>
-<?php } ?>
-</table>
-<?php } else { ?>
-<p>No orders found.</p>
-<?php } ?>
-</div>
 
 </div>
 
@@ -300,6 +306,17 @@ function selectMedicine(medName){
     document.getElementById("suggestions").innerHTML = "";
     loadMedicines(); // refresh medicine table
 }
+</script>
+<script>
+<?php if (isset($_SESSION['toast_error'])): ?>
+    const toast = document.getElementById("toast");
+    toast.textContent = "<?= addslashes($_SESSION['toast_error']); ?>";
+    toast.classList.add("show");
+
+    setTimeout(() => {
+        toast.classList.remove("show");
+    }, 2500);
+<?php unset($_SESSION['toast_error']); endif; ?>
 </script>
 
 

@@ -30,15 +30,17 @@ $stmt->get_result(); ?>
         padding: 0;
       }
       .container {
-        max-width: 900px;
+        
+        max-width: 1400px;
         margin: 40px auto;
-        padding: 20px;
-        background: #fff;
+        margin-top:10px;
+        padding: 10px;
+        background: #dfc7dd;
         border-radius: 8px;
       }
       h2 {
         text-align: center;
-        margin-bottom: 20px;
+        margin-bottom: 30px;
       }
       table {
         width: 100%;
@@ -63,9 +65,20 @@ $stmt->get_result(); ?>
       }
       .back-link {
         display: inline-block;
-        margin-top: 20px;
+        margin-top: 5px;
+        margin-left:50px;
         text-decoration: none;
-        color: #007bff;
+        color: #0a3e75;
+        font-size: 17px;
+        border:2px solid #333;
+        border-radius:5px;
+        background-color:#f1b9dc;
+        transition: background-color 0.3s ease;
+
+      }
+      .back-link:hover{
+        background-color: #f05bf5;
+
       }
     </style>
   </head>
@@ -102,8 +115,8 @@ $stmt->get_result(); ?>
       <?php } else { ?>
       <p class="no-orders">You have not placed any orders yet.</p>
       <?php } ?>
-
+      </div>
       <a href="customer_dashboard.php" class="back-link">← Back to Dashboard</a>
-    </div>
+    
   </body>
 </html>
