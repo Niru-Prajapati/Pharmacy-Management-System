@@ -52,7 +52,7 @@ $order_id = "ORDER_" . time();
         .total {
             font-size: 20px;
             font-weight: bold;
-            color: #f85606; /* Daraz orange */
+            color: #2c3e50; /* Daraz orange */
             text-align: center;
             margin-bottom: 25px;
         }
@@ -70,7 +70,7 @@ $order_id = "ORDER_" . time();
             width: 100%;
             margin-top: 20px;
             padding: 12px;
-            background: #f85606;
+            background: #2c3e50;
             border: none;
             color: white;
             font-size: 16px;
@@ -78,7 +78,7 @@ $order_id = "ORDER_" . time();
             cursor: pointer;
         }
         button:hover {
-            background: #e64a00;
+            background: #0a2036;
         }
         .back {
             display: block;

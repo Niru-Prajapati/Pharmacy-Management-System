@@ -50,75 +50,30 @@ $orders_result = $stmt2->get_result();
 <link rel="stylesheet" href="customerdashboard.css">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-<style>
-table { width:100%; border-collapse: collapse; margin-top:10px;}
-th, td { padding:8px; border-bottom:1px solid #ccc; }
-input, select { padding:7px; margin-right:5px; }
-.card { background:#fff; padding:20px; margin-bottom:20px; border-radius:8px; }
-.sidebar a { display:block; padding:10px; text-decoration:none; }
-small { font-size:0.8em; }
- #suggestions {
-    border: 1px solid #ccc;
-    max-width: 300px;
-    background: white;
-    position: absolute;
-    z-index: 1000;
-}
-
-.suggestion {
-    padding: 8px;
-    cursor: pointer;
-}
-
-.suggestion:hover {
-    background: #f0f0f0;
-}
-
-.disabled {
-    color: gray;
-    cursor: pointer;
-}
-.toast {
-    position: fixed;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #323232;
-    color: #fff;
-    padding: 14px 24px;
-    border-radius: 30px;
-    font-size: 20px;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease, bottom 0.3s ease;
-    z-index: 9999;
-}
-
-.toast.show {
-    opacity: 1;
-    bottom: 50px;
-}
-
-
-</style>
 </head>
 
 <body>
     <div id="toast" class="toast"></div>
 
-
 <?php
+// 🚫 removed alert popup and replaced with toast
 if(isset($_SESSION['cart_success'])){
-    echo "<script>alert('".$_SESSION['cart_success']."');</script>";
+    echo "<script>
+        document.addEventListener('DOMContentLoaded', function(){
+            showToast('".$_SESSION['cart_success']."');
+        });
+    </script>";
     unset($_SESSION['cart_success']);
 }
 if(isset($_SESSION['cart_error'])){
-    echo "<script>alert('Error: ".$_SESSION['cart_error']."');</script>";
+    echo "<script>
+        document.addEventListener('DOMContentLoaded', function(){
+            showToast('Error: ".$_SESSION['cart_error']."');
+        });
+    </script>";
     unset($_SESSION['cart_error']);
 }
 ?>
-    <div id="toast" class="toast"></div>
-
 
 <!-- SIDEBAR -->
 <div class="sidebar">
@@ -176,9 +131,17 @@ if(isset($_SESSION['cart_error'])){
 <tbody id="medicinesBody">
 <?php
 $current_cart = [];
+$toastMessage = "";
 
 while($med = mysqli_fetch_assoc($medicines_result)){
     $errors = validatePrescription($med['MED_ID'], 1, $current_cart);
+
+    if (!empty($errors) && empty($toastMessage)) {
+        foreach ($errors as $key => $value) {
+            $errors[$key] = preg_replace('/https?:\/\/\S+/', 'Pharmacy MS', $value);
+        }
+        $toastMessage = implode(", ", $errors);
+    }
 ?>
 <tr>
     <td><?= htmlspecialchars($med['MED_NAME']); ?></td>
@@ -187,16 +150,9 @@ while($med = mysqli_fetch_assoc($medicines_result)){
     <td><?= htmlspecialchars($med['MED_QTY']); ?></td>
     <td>
         <?php
-    if (!empty($errors)) {
-    foreach ($errors as $key => $value) {
-        $errors[$key] = preg_replace('/https?:\/\/\S+/', 'Pharmacy MS', $value);
-    }
-
-    $error_text = implode(", ", $errors);
-    echo "<span class='disabled' title='{$error_text}'>⚠️ Cannot Add</span>";
-}
-
-
+        if (!empty($errors)) {
+            echo "<span class='disabled'>⚠️ Cannot Add</span>";
+        }
         elseif($med['MED_QTY'] > 0){
             echo "<a href='add_to_cart.php?med_id=".$med['MED_ID']."'>✅ Add to Cart</a>";
         } else {
@@ -208,10 +164,8 @@ while($med = mysqli_fetch_assoc($medicines_result)){
 <?php } ?>
 </tbody>
 </table>
+
 </div>
-
-
-
 
 </div>
 
@@ -307,6 +261,7 @@ function selectMedicine(medName){
     loadMedicines(); // refresh medicine table
 }
 </script>
+
 <script>
 <?php if (isset($_SESSION['toast_error'])): ?>
     const toast = document.getElementById("toast");
@@ -319,6 +274,25 @@ function selectMedicine(medName){
 <?php unset($_SESSION['toast_error']); endif; ?>
 </script>
 
+<script>
+function showToast(message) {
+    const toast = document.getElementById("toast");
+    toast.innerHTML = "⚠️ " + message;
+    toast.className = "toast show";
+
+    setTimeout(() => {
+        toast.className = "toast";
+    }, 3500);
+}
+</script>
+
+<?php if (!empty($toastMessage)): ?>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    showToast("<?= addslashes($toastMessage); ?>");
+});
+</script>
+<?php endif; ?>
 
 </body>
 </html>

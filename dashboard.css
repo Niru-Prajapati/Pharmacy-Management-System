@@ -18,7 +18,7 @@ section {
 /* ----- NAVBAR ----- */
 
 .navbar {
-    background: #0066cc;
+    background: #2c3e50;
     color: white;
     padding: 15px 25px;
     display: flex;
@@ -76,7 +76,7 @@ section {
     display: inline-block;
     margin-top: 10px;
     padding: 10px 18px;
-    background: #0066cc;
+    background: #2c3e50;
     color: white;
     text-decoration: none;
     border-radius: 6px;
@@ -84,7 +84,7 @@ section {
 }
 
 .card a:hover {
-    background: #004d99;
+    background: #113355;
 }
 
 /* ----- TABLE (ORDER HISTORY) ----- */
@@ -108,7 +108,7 @@ table th, table td {
 }
 
 table th {
-    background: #0066cc;
+    background: #2c3e50;
     color: white;
 }
 
@@ -138,7 +138,7 @@ table tr:nth-child(even) {
 
 .search-container button {
     padding: 10px 20px;
-    background: #0066cc;
+    background: #2c3e50;
     color: white;
     border-radius: 6px;
     border: none;
@@ -147,7 +147,7 @@ table tr:nth-child(even) {
 }
 
 .search-container button:hover {
-    background: #004d99;
+    background: rgb(3, 24, 46);
 }
 
 .results-box {
@@ -181,7 +181,7 @@ form input {
 form button {
     width: 100%;
     padding: 12px;
-    background: #0066cc;
+    background: #2c3e50;
     color: white;
     border-radius: 6px;
     border: none;
@@ -191,7 +191,7 @@ form button {
 }
 
 form button:hover {
-    background: #004d99;
+    background: #071f36;
 }
 
 /* ----- WELCOME BOX ----- */

@@ -46,75 +46,8 @@ if (empty($_SESSION['cart'])) {
 <html>
 <head>
     <title>My Cart</title>
-    <style>
-        table {
-             width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            padding: 10px;
-            border-bottom: 1px solid #ccc;
-            text-align: center;
-        }
-        a {
-            text-decoration: none;
-            padding: 4px 8px;
-            font-size: 18px;  
-        }
-        .shop{
-            margin-left:20px;
-            font-size:18px;
-             border: 2px solid #333;
-             border-radius: 6px;
-            background-color: #f1b9dc;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            transition: background-color 0.3s ease;
-        }
-        .shop:hover{
-             background-color: #f05bf5;
-        }
-        h2{
-           margin-left:20px;
-           margin-bottom:30px;
-        }
-        button {
-            padding: 10px 18px;
-            font-size: 15px;
-            cursor: pointer;
-            display:block;
-            margin:20px auto;
-            margin-top:40px;
-            margin-bottom:-30px;
-            background-color:#f1b9dc;
-            border-radius:6px;
-            transition: background-color 0.3s ease;
-        }
-        button:hover{
-            background-color: #f05bf5;
-
-        }
-        .total {
-            font-weight: bold;
-        }
-        .toast {
-    position: fixed;
-    top: 20px;
-    right: -350px;
-    background: #323232;
-    color: #fff;
-    padding: 14px 22px;
-    border-radius: 6px;
-    font-size: 20px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    transition: right 0.5s ease;
-    z-index: 9999;
-}
-
-.toast.show {
-    right: 20px;
-}
-
-    </style>
+    <link rel="stylesheet" href="cart.css">
+   
 </head>
 
 <body>
