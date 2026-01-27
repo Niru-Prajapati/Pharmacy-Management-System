@@ -54,6 +54,8 @@ $orders_result = $stmt2->get_result();
 
 <body>
     <div id="toast" class="toast"></div>
+<div id="errorToast" class="toast"></div>
+
 
 <?php
 // 🚫 removed alert popup and replaced with toast
@@ -130,7 +132,7 @@ if(isset($_SESSION['cart_error'])){
 
 <tbody id="medicinesBody">
 <?php
-$current_cart = [];
+$current_cart = $_SESSION['cart'] ?? [];
 $toastMessage = "";
 
 while($med = mysqli_fetch_assoc($medicines_result)){
@@ -150,9 +152,9 @@ while($med = mysqli_fetch_assoc($medicines_result)){
     <td><?= htmlspecialchars($med['MED_QTY']); ?></td>
     <td>
         <?php
-        if (!empty($errors)) {
-            echo "<span class='disabled'>⚠️ Cannot Add</span>";
-        }
+       if (!empty($errors)) {
+    echo "<span class='disabled cannot-add' data-error='".htmlspecialchars(implode(", ", $errors))."'>⚠️ Cannot Add</span>";
+}
         elseif($med['MED_QTY'] > 0){
             echo "<a href='add_to_cart.php?med_id=".$med['MED_ID']."'>✅ Add to Cart</a>";
         } else {
@@ -286,13 +288,25 @@ function showToast(message) {
 }
 </script>
 
-<?php if (!empty($toastMessage)): ?>
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-    showToast("<?= addslashes($toastMessage); ?>");
+function showErrorToast(message) {
+    const toast = document.getElementById("errorToast");
+    toast.innerText = message;
+    toast.classList.add("show");
+
+    setTimeout(() => {
+        toast.classList.remove("show");
+    }, 3000);
+}
+</script>
+<script>
+document.addEventListener("click", function (e) {
+    if (e.target.classList.contains("cannot-add")) {
+        e.preventDefault();
+        const message = e.target.getAttribute("data-error");
+        showErrorToast(message);
+    }
 });
 </script>
-<?php endif; ?>
-
 </body>
 </html>

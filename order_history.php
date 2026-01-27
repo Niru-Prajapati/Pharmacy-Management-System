@@ -14,8 +14,35 @@ $stmt = $conn->prepare(" SELECT o.id AS order_id, m.MED_NAME, o.quantity,
 o.total_price, o.order_date FROM orders o JOIN meds m ON o.medicine_id =
 m.MED_ID WHERE o.customer_id = ? ORDER BY o.order_date DESC ");
 $stmt->bind_param("i", $customer_id); $stmt->execute(); $result =
-$stmt->get_result(); ?>
+$stmt->get_result(); 
+// Fetch last ordered medicine
+$lastStmt = $conn->prepare("
+    SELECT m.MED_ID, m.MED_NAME, m.CATEGORY
+    FROM orders o
+    JOIN meds m ON o.medicine_id = m.MED_ID
+    WHERE o.customer_id = ?
+    ORDER BY o.order_date DESC
+    LIMIT 1
+");
+$lastStmt->bind_param("i", $customer_id);
+$lastStmt->execute();
+$lastMed = $lastStmt->get_result()->fetch_assoc();
+$recommendations = [];
 
+if ($lastMed) {
+    $recStmt = $conn->prepare("
+        SELECT MED_ID, MED_NAME, MED_PRICE
+        FROM meds
+        WHERE CATEGORY = ?
+        AND MED_ID != ?
+        LIMIT 4
+    ");
+    $recStmt->bind_param("si", $lastMed['CATEGORY'], $lastMed['MED_ID']);
+    $recStmt->execute();
+    $recommendations = $recStmt->get_result();
+}
+
+?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -189,6 +216,42 @@ td:nth-child(4) {
           <?php } ?>
         </tbody>
       </table>
+      <?php if ($lastMed && $recommendations->num_rows > 0): ?>
+<h3 style="margin-top:40px;">💡 Recommended for you</h3>
+<p style="color:#666;">
+Based on your last purchase: 
+<strong><?= htmlspecialchars($lastMed['MED_NAME']); ?></strong>
+</p>
+
+<div style="display:flex; gap:20px; flex-wrap:wrap; margin-top:15px;">
+<?php while($rec = $recommendations->fetch_assoc()): ?>
+    <div style="
+        background:#fff;
+        padding:15px;
+        width:220px;
+        border-radius:12px;
+        box-shadow:0 6px 14px rgba(0,0,0,0.08);
+        transition:transform 0.2s;
+    ">
+        <h4><?= htmlspecialchars($rec['MED_NAME']); ?></h4>
+        <p>Rs. <?= htmlspecialchars($rec['MED_PRICE']); ?></p>
+        <a href="add_to_cart.php?med_id=<?= $rec['MED_ID']; ?>"
+           style="
+            display:inline-block;
+            margin-top:10px;
+            background:#2c3e50;
+            color:#fff;
+            padding:8px 14px;
+            border-radius:20px;
+            text-decoration:none;
+           ">
+           ➕ Add
+        </a>
+    </div>
+<?php endwhile; ?>
+</div>
+<?php endif; ?>
+
       <?php } else { ?>
       <p class="no-orders">You have not placed any orders yet.</p>
       <?php } ?>

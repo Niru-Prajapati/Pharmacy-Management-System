@@ -10,10 +10,11 @@ Pharmacist Dashboard
 </head>
 <style>
 body {font-family:Arial;}
+
 </style>
 
 <body>
-
+<div class="container">
 	<div class="sidenav">
 			<h2 style="font-family:Arial; color:white; text-align:center;"> PHARMACY </h2>
 			<a href="pharmmainpage.php">Dashboard</a>
@@ -51,15 +52,16 @@ body {font-family:Arial;}
 	<h2> PHARMACIST DASHBOARD </h2>
 	</div>
 	</center>
-	
+	<div class=icon-grid>
 	<a href="pharm-pos1.php" title="Add New Sale">
-	<img src="https://cdn2.iconfinder.com/data/icons/shopping-e-commerce-1-1/32/Add-Cart-Product-Buy-Plus-512.png" style="padding:8px;margin-left:550px;margin-top:40px;width:200px;height:200px;border:2px solid black;" alt="Add New Sale">
+	<img src="https://cdn2.iconfinder.com/data/icons/shopping-e-commerce-1-1/32/Add-Cart-Product-Buy-Plus-512.png" alt="Add New Sale">
 	</a>
 	
 	<a href="pharm-inventory.php" title="View Inventory">
-	<img src="https://cdn-icons-png.flaticon.com/512/10469/10469240.png" style="padding:8px;margin-left:100px;margin-top:40px;width:200px;height:200px;border:2px solid black;" alt="Inventory">
+	<img src="https://cdn-icons-png.flaticon.com/512/10469/10469240.png"  alt="Inventory">
 	</a>
-	
+</div>
+</div>
 </body>
 
 <script>

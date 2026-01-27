@@ -99,10 +99,9 @@ foreach ($_SESSION['cart'] as $med_id => $qty) {
         <td>Rs. <?= $subtotal; ?></td>
 
         <td>
-            <a href="remove_from_cart.php?med_id=<?= $med_id ?>" 
-               onclick="return confirm('Remove this item from cart?');">
-               ❌ Remove
-            </a>
+           <a href="#" onclick="showConfirmToast(<?= $med_id ?>); return false;">
+    ❌ Remove
+</a>
         </td>
     </tr>
 
@@ -134,6 +133,31 @@ foreach ($_SESSION['cart'] as $med_id => $qty) {
     }, 2500);
 <?php endif; ?>
 </script>
+<script>
+let removeMedId = null;
+
+function showConfirmToast(medId) {
+    removeMedId = medId;
+    document.getElementById("confirmToast").classList.add("show");
+}
+
+function confirmYes() {
+    window.location = "remove_from_cart.php?med_id=" + removeMedId;
+}
+
+function confirmNo() {
+    document.getElementById("confirmToast").classList.remove("show");
+    removeMedId = null;
+}
+</script>
+<div id="confirmToast" class="confirm-toast">
+    <p id="confirmMessage">Remove this item from cart?</p>
+    <div class="actions">
+        <button onclick="confirmYes()">Yes</button>
+        <button onclick="confirmNo()">Cancel</button>
+    </div>
+</div>
+
 
 
 

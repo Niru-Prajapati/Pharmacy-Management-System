@@ -58,17 +58,21 @@ while ($med = mysqli_fetch_assoc($result)) {
     <td><?= htmlspecialchars($med_qty); ?></td>
     <td>
         <?php
-       if (!empty($errors)) {
+if (!empty($errors)) {
 
-    // Build readable error message
     $error_msg  = "This medicine cannot be added to your cart because:\n\n";
     $error_msg .= "- " . implode("\n- ", $errors);
 
-    // Safely encode for JavaScript
-    $js_error = json_encode($error_msg);
+    // Escape for HTML attribute
+    $safe_error = htmlspecialchars($error_msg, ENT_QUOTES);
 
-    echo "<a href='#' onclick='alert($js_error); return false;' class='disabled'>⚠️ Cannot Add</a>";
+    echo "<a href='#'
+        class='disabled cannot-add'
+        data-error=\"$safe_error\">
+        ⚠️ Cannot Add
+      </a>";
 }
+
 
         elseif ($med_qty > 0) {
             // Add to Cart link

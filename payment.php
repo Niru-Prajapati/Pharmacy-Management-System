@@ -2,7 +2,7 @@
 session_start();
 include 'connection.php';
 
-// Check login
+// Login check
 if (!isset($_SESSION['customer_id'])) {
     header("Location: customer_login.php");
     exit();
@@ -15,7 +15,7 @@ if (empty($_SESSION['cart'])) {
     exit();
 }
 
-// Calculate total amount
+// Calculate total
 $total = 0;
 foreach ($_SESSION['cart'] as $med_id => $qty) {
     $stmt = $conn->prepare("SELECT MED_PRICE FROM meds WHERE MED_ID = ?");
@@ -25,9 +25,10 @@ foreach ($_SESSION['cart'] as $med_id => $qty) {
     $total += $med['MED_PRICE'] * $qty;
 }
 
-// Unique order id
+// Order ID
 $order_id = "ORDER_" . time();
 ?>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -47,45 +48,24 @@ $order_id = "ORDER_" . time();
         }
         h2 {
             text-align: center;
-            margin-bottom: 20px;
         }
         .total {
             font-size: 20px;
             font-weight: bold;
-            color: #2c3e50; /* Daraz orange */
             text-align: center;
-            margin-bottom: 25px;
+            margin: 20px 0;
         }
-        label {
-            font-weight: bold;
-        }
-        select {
+        select, button {
             width: 100%;
-            padding: 10px;
-            margin-top: 8px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
+            padding: 12px;
+            margin-top: 15px;
         }
         button {
-            width: 100%;
-            margin-top: 20px;
-            padding: 12px;
             background: #2c3e50;
-            border: none;
             color: white;
-            font-size: 16px;
+            border: none;
             border-radius: 6px;
             cursor: pointer;
-        }
-        button:hover {
-            background: #0a2036;
-        }
-        .back {
-            display: block;
-            text-align: center;
-            margin-top: 15px;
-            text-decoration: none;
-            color: #555;
         }
     </style>
 </head>
@@ -99,64 +79,63 @@ $order_id = "ORDER_" . time();
         Total Amount: Rs. <?= $total ?>
     </div>
 
-    <form id="paymentForm" method="post" action="place_order.php">
+    <!-- NORMAL ORDER FORM -->
+    <form id="orderForm" method="post" action="place_order.php">
         <input type="hidden" name="order_id" value="<?= $order_id ?>">
         <input type="hidden" name="total_amount" value="<?= $total ?>">
 
         <label>Payment Method</label>
-        <select name="payment_method" id="payment_method" required>
-            <option value="Cash on Delivery">Cash on Delivery</option>
-            <option value="Online">Online (eSewa)</option>
+        <select id="payment_method" required>
+            <option value="cod">Cash on Delivery</option>
+            <option value="esewa">Online (eSewa)</option>
         </select>
 
         <button type="submit">Pay & Place Order</button>
     </form>
-
-    <a class="back" href="cart.php">⬅ Back to Cart</a>
 </div>
 
-<script>
-document.querySelector('form').addEventListener('submit', function(e) {
-    var method = document.getElementById('payment_method').value;
+<!-- eSewa V2 FORM -->
+<form id="esewaForm" action="https://rc-epay.esewa.com.np/api/epay/main/v2/form" method="POST">
+    <input type="hidden" name="amount" value="<?= $total ?>">
+    <input type="hidden" name="tax_amount" value="0">
+    <input type="hidden" name="total_amount" value="<?= $total ?>">
+    <input type="hidden" name="transaction_uuid" id="transaction_uuid">
+    <input type="hidden" name="product_code" value="EPAYTEST">
+    <input type="hidden" name="product_service_charge" value="0">
+    <input type="hidden" name="product_delivery_charge" value="0">
+    <input type="hidden" name="success_url" value="http://localhost/Project-D/esewa_success.php">
+    <input type="hidden" name="failure_url" value="http://localhost/Project-D/esewa_fail.php">
+    <input type="hidden" name="signed_field_names" value="total_amount,transaction_uuid,product_code">
+    <input type="hidden" name="signature" id="signature">
+</form>
 
-    if (method === 'Online') {
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+
+<script>
+document.getElementById("orderForm").addEventListener("submit", function (e) {
+
+    const method = document.getElementById("payment_method").value;
+
+    if (method === "esewa") {
         e.preventDefault();
 
-        var total = <?= $total ?>;
+        const totalAmount = "<?= $total ?>";
+        const productCode = "EPAYTEST";
+        const transactionUuid = "<?= $order_id ?>_" + Date.now();
+        const secret = "8gBm/:&EnhH.1/q"; // UAT Secret Key
 
-        var params = {
-            amt: total,
-            psc: 0,
-            pdc: 0,
-            txAmt: 0,
-            tAmt: total,
-            pid: "ORDER_<?= time() ?>",
-            scd: "EPAYTEST",
-            su: "http://localhost/Project-D/esewa_success.php",
-            fu: "http://localhost/Project-D/esewa_fail.php"
-        };
+        document.getElementById("transaction_uuid").value = transactionUuid;
 
-        // Create a POST form dynamically
-        var form = document.createElement("form");
-        form.method = "POST";
-        form.action = "https://esewa.com.np/epay/main";
+        const message = `total_amount=${totalAmount},transaction_uuid=${transactionUuid},product_code=${productCode}`;
+        const hash = CryptoJS.HmacSHA256(message, secret);
+        const signature = CryptoJS.enc.Base64.stringify(hash);
 
-        // Add all parameters as hidden inputs
-        for (var key in params) {
-            var input = document.createElement("input");
-            input.type = "hidden";
-            input.name = key;
-            input.value = params[key];
-            form.appendChild(input);
-        }
+        document.getElementById("signature").value = signature;
 
-        document.body.appendChild(form);
-        form.submit();
+        document.getElementById("esewaForm").submit();
     }
 });
 </script>
-
-
 
 </body>
 </html>

@@ -2,72 +2,87 @@
 session_start();
 include 'connection.php';
 
-// eSewa returns these parameters
-$amt = $_GET['amt'] ?? 0;
-$pid = $_GET['oid'] ?? $_GET['pid'] ?? '';
-$refId = $_GET['refId'] ?? '';
-
-// Security check
-if (empty($pid) || empty($refId)) {
-    $_SESSION['toast_error'] = "Invalid payment response";
-    header("Location: cart.php");
-    exit();
+// 1. Check if data is received
+if (!isset($_GET['data'])) {
+    die("Payment verification failed: no data received");
 }
 
-// User must be logged in
-if (!isset($_SESSION['customer_id'])) {
-    header("Location: customer_login.php");
-    exit();
+// 2. Decode the data
+$data_json = base64_decode($_GET['data']);
+$data = json_decode($data_json, true);
+
+if (!$data) {
+    die("Payment verification failed: invalid data");
 }
 
-$customer_id = $_SESSION['customer_id'];
+// 3. Read values
+$transaction_uuid = $data['transaction_uuid'] ?? null;
+$total_amount     = $data['total_amount'] ?? null;
+$status           = $data['status'] ?? null;
 
-// Cart must exist
-if (empty($_SESSION['cart'])) {
-    $_SESSION['toast_error'] = "Cart is empty";
-    header("Location: customer_dashboard.php");
-    exit();
+// 4. Basic validation
+if (!$transaction_uuid || !$total_amount || $status !== "COMPLETE") {
+    die("Payment verification failed");
 }
 
-// Place order for each cart item
+// 5. Prevent duplicate payment
+$stmt = $conn->prepare("SELECT id FROM payments WHERE transaction_uuid = ?");
+$stmt->bind_param("s", $transaction_uuid);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows > 0) {
+    die("Transaction already processed");
+}
+
+// 6. Save payment
+$stmt = $conn->prepare("
+    INSERT INTO payments (transaction_uuid, amount, payment_method, status)
+    VALUES (?, ?, 'eSewa', 'Success')
+");
+$stmt->bind_param("sd", $transaction_uuid, $total_amount);
+$stmt->execute();
+
+// 7. Place order for each cart item
 foreach ($_SESSION['cart'] as $med_id => $qty) {
 
-    // Get medicine info
-    $stmt = $conn->prepare("SELECT MED_PRICE, MED_QTY FROM meds WHERE MED_ID = ?");
-    $stmt->bind_param("i", $med_id);
-    $stmt->execute();
-    $med = $stmt->get_result()->fetch_assoc();
-
-    if (!$med || $med['MED_QTY'] < $qty) {
-        $_SESSION['toast_error'] = "Stock issue while placing order";
-        header("Location: cart.php");
-        exit();
-    }
+    // Get price
+    $stmt2 = $conn->prepare("SELECT MED_PRICE FROM meds WHERE MED_ID = ?");
+    $stmt2->bind_param("i", $med_id);
+    $stmt2->execute();
+    $med = $stmt2->get_result()->fetch_assoc();
 
     $total_price = $med['MED_PRICE'] * $qty;
 
-    // Insert order
-    $stmt2 = $conn->prepare("
-        INSERT INTO orders (customer_id, medicine_id, quantity, total_price, payment_method, payment_status, order_date)
-        VALUES (?, ?, ?, ?, 'Online (eSewa)', 'Paid', NOW())
-    ");
-    $stmt2->bind_param("iiid", $customer_id, $med_id, $qty, $total_price);
-    $stmt2->execute();
-
-    // Reduce stock
     $stmt3 = $conn->prepare("
-        UPDATE meds SET MED_QTY = MED_QTY - ? WHERE MED_ID = ?
+        INSERT INTO orders (customer_id, medicine_id, quantity, total_price, order_date)
+        VALUES (?, ?, ?, ?, CURDATE())
     ");
-    $stmt3->bind_param("ii", $qty, $med_id);
+    $stmt3->bind_param("iiid", $_SESSION['customer_id'], $med_id, $qty, $total_price);
     $stmt3->execute();
 }
 
-// Clear cart
+// 8. Clear cart
 unset($_SESSION['cart']);
+?>
 
-// Success toast
-$_SESSION['toast_success'] = "🎉 Payment successful! Order placed.";
-
-// Redirect to orders section
-header("Location: customer_dashboard.php#orders");
-exit();
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Payment Success</title>
+    <style>
+        body { font-family: Arial; background: #eafaf1; text-align: center; padding-top: 80px; }
+        .box { background: #fff; padding: 40px; border-radius: 10px; display: inline-block; }
+        h1 { color: #27ae60; }
+        a { display: inline-block; margin-top: 20px; text-decoration: none; color: white; background: #27ae60; padding: 10px 20px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+<div class="box">
+    <h1>✅ Payment Successful</h1>
+    <p>Your order has been placed successfully.</p>
+    <p><strong>Transaction ID:</strong> <?= htmlspecialchars($transaction_uuid) ?></p>
+    <a href="customer_dashboard.php">Go to Dashboard</a>
+</div>
+</body>
+</html>

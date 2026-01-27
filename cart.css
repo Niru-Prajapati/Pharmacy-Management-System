@@ -103,6 +103,45 @@ button:hover {
     transform: translateY(-3px);
     box-shadow: 0 10px 20px rgba(255,111,0,0.45);
 }
+.confirm-toast {
+    position: fixed;
+    top: 30px;
+    right: 30px;
+    background: #fff;
+    border-left: 5px solid #26175f;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    padding: 15px;
+    width: 280px;
+    display: none;
+    z-index: 9999;
+    border-radius: 8px;
+}
+
+.confirm-toast.show {
+    display: block;
+}
+
+.confirm-toast .actions {
+    margin-top: 10px;
+    text-align: right;
+}
+
+.confirm-toast button {
+    padding: 6px 12px;
+    margin-left: 6px;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.confirm-toast button:first-child {
+    background: #170a52;
+    color: #fff;
+}
+
+.confirm-toast button:last-child {
+    background: #e74f4f;
+}
 
 /* Continue shopping */
 .shop {
