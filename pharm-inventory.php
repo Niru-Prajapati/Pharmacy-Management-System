@@ -47,6 +47,7 @@ Inventory
 				<a href="pharm-customer.php">Add New Customer</a>
 				<a href="pharm-customer-view.php">View Customers</a>
 			</div>
+			<a href="pharm_orders.php">Orders</a>
 	</div>
 
 	<?php

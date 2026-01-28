@@ -42,7 +42,7 @@ $order_id = "ORDER_" . time();
             max-width: 420px;
             margin: 60px auto;
             background: #fff;
-            padding: 25px;
+            padding: 20px;
             border-radius: 10px;
             box-shadow: 0 6px 18px rgba(0,0,0,0.15);
         }
@@ -55,10 +55,25 @@ $order_id = "ORDER_" . time();
             text-align: center;
             margin: 20px 0;
         }
-        select, button {
+        .add{
+            width:90%;
+            padding:5px;
+            
+
+        }
+        .num,.pay{
+            width:90%;
+            padding:5px;
+            
+
+        }
+        select, button, textarea, input {
             width: 100%;
             padding: 12px;
             margin-top: 15px;
+        }
+        textarea {
+            resize: none;
         }
         button {
             background: #2c3e50;
@@ -83,12 +98,23 @@ $order_id = "ORDER_" . time();
     <form id="orderForm" method="post" action="place_order.php">
         <input type="hidden" name="order_id" value="<?= $order_id ?>">
         <input type="hidden" name="total_amount" value="<?= $total ?>">
-
+        <div class="add">
+        <!-- ✅ ADDED: DELIVERY ADDRESS -->
+        <label>Delivery Address</label>
+        <textarea name="address" required placeholder="Enter full delivery address"></textarea>
+        </div>
+        <div class="num">
+        <!-- ✅ ADDED: CONTACT NUMBER -->
+        <label>Contact Number</label>
+        <input type="text" name="phone" required placeholder="98XXXXXXXX">
+</div>
+<div class="pay">
         <label>Payment Method</label>
-        <select id="payment_method" required>
+        <!-- ✅ FIXED: added name attribute -->
+        <select id="payment_method" name="payment_method" required>
             <option value="cod">Cash on Delivery</option>
             <option value="esewa">Online (eSewa)</option>
-        </select>
+        </select></div>
 
         <button type="submit">Pay & Place Order</button>
     </form>

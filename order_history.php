@@ -199,6 +199,7 @@ td:nth-child(4) {
             <th>Quantity</th>
             <th>Total Price</th>
             <th>Order Date</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
@@ -212,6 +213,12 @@ td:nth-child(4) {
               <?= htmlspecialchars($row['total_price']); ?>
             </td>
             <td><?= htmlspecialchars($row['order_date']); ?></td>
+            <td>
+  <a href="order_details.php?order_id=<?= $row['order_id']; ?>">
+    View Details
+  </a>
+</td>
+
           </tr>
           <?php } ?>
         </tbody>

@@ -1,0 +1,95 @@
+/* Page background */
+body {
+    font-family: "Segoe UI", Tahoma, sans-serif;
+    background: #f4f6f9;
+    padding: 20px;
+}
+
+/* Table container (optional wrapper) */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #ffffff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+/* Table header */
+table th {
+    background: linear-gradient(135deg, #2c7be5, #1a5fd0);
+    color: #ffffff;
+    padding: 14px 12px;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-align: center;
+}
+
+/* Table rows */
+table td {
+    padding: 12px;
+    text-align: center;
+    font-size: 14px;
+    border-bottom: 1px solid #eaeaea;
+}
+
+/* Zebra striping */
+table tr:nth-child(even) {
+    background-color: #f9fbfd;
+}
+
+/* Hover effect */
+table tr:hover {
+    background-color: #eef4ff;
+    transition: background 0.3s ease;
+}
+
+/* Status text */
+td:nth-child(7) {
+    font-weight: bold;
+    color: #f0ad4e; /* Pending color */
+}
+
+/* Payment method badge look */
+td:nth-child(6) {
+    font-weight: bold;
+    color: #555;
+}
+
+/* Approve button */
+button {
+    background: linear-gradient(135deg, #28a745, #218838);
+    color: #fff;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.25s ease;
+}
+
+/* Button hover */
+button:hover {
+    background: linear-gradient(135deg, #218838, #1e7e34);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(40, 167, 69, 0.35);
+}
+
+/* Button click */
+button:active {
+    transform: scale(0.96);
+}
+
+/* Responsive table */
+@media (max-width: 768px) {
+    table {
+        font-size: 12px;
+    }
+
+    button {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+}
